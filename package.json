@@ -10,6 +10,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-firebase/app": "^21.12.0",
+    "@react-native-firebase/auth": "^21.12.0",
+    "@react-native-google-signin/google-signin": "^13.2.0",
+    "expo-auth-session": "^6.0.3",
+    "expo-dev-client": "^5.0.12",
+    "expo-random": "^14.0.1",
+    "firebase": "^11.4.0",
     "react": "19.0.0",
     "react-native": "0.78.0"
   },

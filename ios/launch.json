@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Run iOS on Device",
+        "cwd": "${workspaceFolder}",
+        "type": "reactnative",
+        "request": "launch",
+        "platform": "ios",
+        "target": "device",
+        "runArguments": ["--udid", "00008110-001248461483801E"]
+      }
+    ]
+  }

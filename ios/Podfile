@@ -1,4 +1,3 @@
-# Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
     "react-native/scripts/react_native_pods.rb",
@@ -8,8 +7,8 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
-# Enable modular headers globally
-use_modular_headers!
+# Enable static frameworks for Firebase
+use_frameworks! :linkage => :static
 
 target 'Shelp' do
   config = use_native_modules!
@@ -21,12 +20,14 @@ target 'Shelp' do
   )
 
   # Add Firebase pods
-  pod 'FirebaseAuth'
-  pod 'FirebaseCore'
-  pod 'FirebaseCoreInternal'
+  pod 'Firebase/Core'
+  pod 'Firebase/Auth'
+  pod 'Firebase/Firestore'
+
+  # Optional: Add gRPC-C++ if needed
+  # pod 'gRPC-C++'
 
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],

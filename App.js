@@ -76,7 +76,8 @@ import { useEffect } from "react";
 import {Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
 import auth from "@react-native-firebase/auth";
-
+// import logo_img from "./resources/SHELP.svg";
+import {Image} from 'react-native';
 
 import { getApps } from "@react-native-firebase/app";
 console.log("Firebase Apps:", getApps());
@@ -93,8 +94,9 @@ export default function App() {
   // Handle Google Sign-In
   const handleGoogleSignIn = async () => {
     try {
+
       // Check if Google Play Services is available
-      await GoogleSignin.hasPlayServices();
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
       // Get the user's ID token
       const { idToken } = await GoogleSignin.signIn();
@@ -123,13 +125,21 @@ export default function App() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text style={{ fontSize: 20, marginBottom: 20 }}>Welcome to the App</Text>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f2570a" }}>
+      
+      <Image
+        source={require("./resources/SHELPW.png")}
+        style={{ width: 300, height: 300}}
+      />
+      <Text style={{color:"white"}}>Welcome to the pantry of your dreams!</Text>
+      <Text></Text>
+      {/* <Text style={{ fontSize: 20, marginBottom: 20 }}>Welcome to the App</Text> */}
       <TouchableOpacity
+        
         onPress={handleGoogleSignIn}
-        style={{ padding: 10, backgroundColor: "#4285F4", borderRadius: 5 }}
+        style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 300, alignItems:"center" }}
       >
-        <Text style={{ color: "#fff" }}>Sign in with Google</Text>
+        <Text>Sign in with Google</Text>
       </TouchableOpacity>
     </View>
   );

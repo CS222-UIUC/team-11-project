@@ -5,7 +5,7 @@ import auth from "@react-native-firebase/auth";
 // import logo_img from "./resources/SHELP.svg";
 import {Image} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
 
 import { getApps } from "@react-native-firebase/app";
 console.log("Firebase Apps:", getApps());
@@ -16,6 +16,7 @@ export default function SignIn() {
     GoogleSignin.configure({
       webClientId: "421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com",
       iosClientId: "421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com",
+      offlineAccess: true, 
     });
   }, []);
 
@@ -33,7 +34,7 @@ export default function SignIn() {
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
       // Sign in with Firebase using the credential
-      await auth().signInWithCredential(googleCredential);
+      await auth().signInWithCredential(auth, googleCredential);
 
       // Success: Show a message or navigate to another screen
       Alert.alert("Success", "Signed in with Google!");

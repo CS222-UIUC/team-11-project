@@ -16,7 +16,7 @@ export default function SignIn() {
   // Configure Google Sign-In
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: "421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com",
+      webClientId: "421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com",
       iosClientId: "421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com",
       offlineAccess: true, 
     });
@@ -67,12 +67,12 @@ export default function SignIn() {
       {/* <Text style={{ fontSize: 20, marginBottom: 20 }}>Welcome to the App</Text> */}
       <TouchableOpacity
         //if using google auth uncomment the following
-        // onPress={handleGoogleSignIn()}
+        // onPress={()=>handleGoogleSignIn()}
         //if not using google auth uncomment the following
         onPress={()=>navigation.navigate('HomeFirst')}
         style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 300, alignItems:"center" }}
       >
-        <Text>Sign in with Google</Text>
+        <Text>Get Started With Shelp!</Text>
       </TouchableOpacity>
     </View>
   );

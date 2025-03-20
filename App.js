@@ -8,6 +8,7 @@ import AddItem from './screens/AddItem';
 import Pantry from './screens/Pantry'
 const Stack = createNativeStackNavigator();
 
+
 export default function App() {
 
   return (

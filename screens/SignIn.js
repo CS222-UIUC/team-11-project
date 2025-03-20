@@ -9,8 +9,10 @@ import {NavigationContainer} from '@react-navigation/native';
 
 import { getApps } from "@react-native-firebase/app";
 console.log("Firebase Apps:", getApps());
+import { useNavigation } from '@react-navigation/native';
 
 export default function SignIn() {
+  const navigation = useNavigation();
   // Configure Google Sign-In
   useEffect(() => {
     GoogleSignin.configure({
@@ -37,7 +39,7 @@ export default function SignIn() {
       await auth().signInWithCredential(auth, googleCredential);
 
       // Success: Show a message or navigate to another screen
-      Alert.alert("Success", "Signed in with Google!");
+      navigation.navigate('HomeFirst');
     } catch (error) {
       // Handle errors
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -64,8 +66,10 @@ export default function SignIn() {
       <Text></Text>
       {/* <Text style={{ fontSize: 20, marginBottom: 20 }}>Welcome to the App</Text> */}
       <TouchableOpacity
-        
-        onPress={handleGoogleSignIn}
+        //if using google auth uncomment the following
+        // onPress={handleGoogleSignIn()}
+        //if not using google auth uncomment the following
+        onPress={()=>navigation.navigate('HomeFirst')}
         style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 300, alignItems:"center" }}
       >
         <Text>Sign in with Google</Text>

@@ -3,9 +3,25 @@ import {Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 
 export default function AddItem() {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f2570a" }}>
+    <View style={styles.container}>
       
-      <Text style={{color:"white"}}>Add a new item to your pantry:</Text>
+      <Text style={styles.header}>Add a new item to your pantry:</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+    container: {
+      paddingTop: 50,
+      paddingHorizontal: 20,
+      backgroundColor: '#fff',
+      flex: 1,
+    },
+    header: {
+      fontSize: 26,
+      fontWeight: 'bold',
+      marginBottom: 20,
+      textAlign: 'center',
+    },
+  });
+  

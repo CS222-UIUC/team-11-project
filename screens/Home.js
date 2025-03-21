@@ -3,9 +3,24 @@ import {Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 
 export default function Home() {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f2570a" }}>
+    <View style={styles.container}>
       
-      <Text style={{color:"white"}}>Welcome to Shelp!</Text>
+      <Text style={styles.header}>Welcome to Shelp!</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    backgroundColor: '#fff',
+    flex: 1,
+  },
+  header: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+});

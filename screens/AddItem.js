@@ -12,7 +12,7 @@ export default function AddItem() {
 
 const styles = StyleSheet.create({
     container: {
-      paddingTop: 50,
+      paddingTop: 100,
       paddingHorizontal: 20,
       backgroundColor: '#fff',
       flex: 1,

@@ -45,12 +45,12 @@ const InitNavigator = () => {
           headerShown: false,
           tabBarLabelStyle: {
             fontSize:14, 
-            fontFamily: 'Mohave-Light'
+            fontFamily: 'Mohave-Light',
           },
           tabBarActiveTintColor: '#f2570a',
           tabBarInactiveTintColor: 'white',
           tabBarHideOnKeyboard: true,
-          tabBarStyle: {backgroundColor: '#2F2F2F', padding:0, height:65, borderTopWidth:0},
+          tabBarStyle: {backgroundColor: '#2F2F2F', padding:0, height:85, borderTopWidth:0},
           tabBarItemStyle: {marginTop: 5}
         }}>
           <Tab.Screen name="Home" component={Home} 
@@ -73,7 +73,6 @@ const InitNavigator = () => {
             tabBarLabel: 'View Pantry',
             tabBarIcon: ({ focused, color, size }) => (
               <FontAwesomeIcon icon={faList} size={20} color={focused?'#f2570a':'white'} />
-
             ),
           }}/>
           </Tab.Navigator>

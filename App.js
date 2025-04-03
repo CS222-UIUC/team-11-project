@@ -10,6 +10,16 @@ const Stack = createNativeStackNavigator();
 
 
 export default function App() {
+    useEffect(() => {
+        const initializeFirebase = async () => {
+            if (getApps().length === 0) {
+            await initializeApp();
+            await auth().setPersistence(auth.Auth.Persistence.LOCAL);
+            }
+        };
+        initializeFirebase();
+    }, []);
+
 
   return (
     <NavigationContainer>

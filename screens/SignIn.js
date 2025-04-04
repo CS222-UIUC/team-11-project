@@ -98,22 +98,29 @@ export default function SignIn() {
         
         <Image
           source={require("../resources/SHELPW.png")}
-          style={{ width: 300, height: 300}}
+          style={{ width: 200, height: 200}}
         />
         
         <Text style={{color:"white"}}>Welcome to the pantry of your dreams!</Text>
         <Text></Text>
-        <Text style = {{ fontSize: 20, marginBottom: 10 }}>Email:</Text>
-        <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" style={{ borderBottomLength: 10 , marginBottom: 5 }} />
-        <Text style = {{ fontSize: 20, marginBottom: 10 }}>Password:</Text>
-        <TextInput value={password} onChangeText={setPassword} secureTextEntry style={{ borderBottomLength: 10 , marginBottom: 5 }} />
+        <Text style = {{ color: "white", fontSize: 24, marginBottom: 10 }}>Email:</Text>
+        <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" style={{ backgroundColor: "white", width: 300, borderBottomLength: 10 , marginBottom: 5 }} />
+        <Text style = {{ color: "white", fontSize: 24, marginBottom: 10 }}>Password:</Text>
+        <TextInput value={password} onChangeText={setPassword} secureTextEntry style={{ backgroundColor: "white", width: 300, borderBottomLength: 10 , marginBottom: 10 }} />
         <TouchableOpacity
           //if using google auth uncomment the following
-          onPress={()=>signInWithEmail()} style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 300, alignItems:"center" , marginBottom: 10}}
+          onPress={()=>signInWithEmail()} style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 250, alignItems:"center" }}
           
         >
           <Text>Sign in with email</Text>
           
+        </TouchableOpacity>
+        {/* sign up button */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('SignUp')}
+          style={{ padding: 10, borderRadius: 5, width: 250, alignItems: "center", marginBottom: 20 }}
+        >
+          <Text style={{ color: "white" }}>Don't have an account? Sign up</Text>
         </TouchableOpacity>
         {/* <Button title="Sign In" onPress={signInWithEmail} style = {{marginBottom: 10}}/> */}
         {/* <Text style={{ fontSize: 20, marginBottom: 20 }}>Welcome to the App</Text> */}
@@ -122,18 +129,12 @@ export default function SignIn() {
           onPress={()=>handleGoogleSignIn()}
           //if not using google auth uncomment the following
           // onPress={()=>navigation.navigate('HomeFirst')}
-          style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 300, alignItems:"center" }}
+          style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 250, alignItems:"center", marginTop: 10 }}
         >
           <Text>Sign in with Google</Text>
         </TouchableOpacity>
 
-        {/* sign up button */}
-        <TouchableOpacity
-        onPress={() => navigation.navigate('SignUp')}
-        style={{ padding: 10, backgroundColor: "#f5f5f5", borderRadius: 5, width: 300, alignItems: "center", marginTop: 10 }}
-      >
-        <Text style={{ color: "#333" }}>Don't have an account? Sign up</Text>
-      </TouchableOpacity>
+        
 
       </View>
     </TouchableWithoutFeedback>

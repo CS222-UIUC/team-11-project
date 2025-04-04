@@ -126,6 +126,15 @@ export default function SignIn() {
         >
           <Text>Sign in with Google</Text>
         </TouchableOpacity>
+
+        {/* sign up button */}
+        <TouchableOpacity
+        onPress={() => navigation.navigate('SignUp')}
+        style={{ padding: 10, backgroundColor: "#f5f5f5", borderRadius: 5, width: 300, alignItems: "center", marginTop: 10 }}
+      >
+        <Text style={{ color: "#333" }}>Don't have an account? Sign up</Text>
+      </TouchableOpacity>
+
       </View>
     </TouchableWithoutFeedback>
   );

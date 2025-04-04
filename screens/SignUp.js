@@ -40,7 +40,7 @@ export default function SignUp() {
           style={{ backgroundColor: "white", width: 300, padding: 10, marginBottom: 20, borderRadius: 5 }}
         />
 
-        <TouchableOpacity onPress={handleSignUp} style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 300, alignItems: "center" }}>
+        <TouchableOpacity onPress={handleSignUp} style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 250, alignItems: "center" }}>
           <Text>Sign Up</Text>
         </TouchableOpacity>
 

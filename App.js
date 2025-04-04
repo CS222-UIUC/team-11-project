@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignIn from "./screens/SignIn";
+import SignUp from "./screens/SignUp";
 import Home from "./screens/Home";
 import AddItem from './screens/AddItem';
 import Pantry from './screens/Pantry'
@@ -29,6 +30,11 @@ export default function App() {
           component={SignIn}
           options={{ headerShown: false}}
         />
+        <Stack.Screen
+          name="SignUp"  
+          component={SignUp}
+          options={{ headerShown: false }}
+  />
         <Stack.Screen
           name="HomeFirst"
           component={InitNavigator}

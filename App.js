@@ -7,6 +7,7 @@ import SignUp from "./screens/SignUp";
 import Home from "./screens/Home";
 import AddItem from './screens/AddItem';
 import Pantry from './screens/Pantry'
+import Profile from './screens/Profile'
 const Stack = createNativeStackNavigator();
 
 
@@ -26,7 +27,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
-          name="Sign_in"
+          name="SignIn"
           component={SignIn}
           options={{ headerShown: false}}
         />
@@ -50,6 +51,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { faList } from '@fortawesome/free-solid-svg-icons/faList'
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 
 const Tab = createBottomTabNavigator();
 const InitNavigator = () => {
@@ -91,6 +93,14 @@ const InitNavigator = () => {
               <FontAwesomeIcon icon={faList} size={20} color={focused?'#f2570a':'white'} />
             ),
           }}/>
+          <Tab.Screen name="Profile" component={Profile} 
+          options={{
+            tabBarLabel: 'Profile',
+            tabBarIcon: ({ focused, color, size }) => (
+              <FontAwesomeIcon icon={faUser} size={20} color={focused?'#f2570a':'white'} />
+            ),
+          }}/>
           </Tab.Navigator>
+          
   );
 }

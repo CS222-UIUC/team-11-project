@@ -12,12 +12,12 @@ console.log("Firebase Apps:", getApps());
 import { useNavigation } from '@react-navigation/native';
 
 // Configure Google Sign-In
-// GoogleSignin.configure({
-//   webClientId: "421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com",
-//   iosClientId: "421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com",
-//   offlineAccess: false,
-//   forceCodeForRefreshToken: true,
-// });
+GoogleSignin.configure({
+  webClientId: "421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com",
+  iosClientId: "421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com",
+  offlineAccess: false,
+  forceCodeForRefreshToken: true,
+});
 
 export default function SignIn() {
   const navigation = useNavigation();
@@ -26,6 +26,22 @@ export default function SignIn() {
     if (getApps().length === 0) {
       initializeApp();
     }
+  }, []);
+
+  useEffect(() => {
+    const checkIfUserIsLoggedIn = async () => {
+      try {
+        const uid = await AsyncStorage.getItem('userUID');
+        if (uid !== null) {
+          console.log('User already signed in:', uid);
+          navigation.navigate('HomeFirst');
+        }
+      } catch (error) {
+        console.error('Error checking user UID in AsyncStorage:', error);
+      }
+    };
+  
+    checkIfUserIsLoggedIn();
   }, []);
 
   // Normal email sign in
@@ -50,54 +66,54 @@ export default function SignIn() {
   };
 
   // google sign in
-  // const handleGoogleSignIn = async () => {
-  //   try {
-  //     // 1. Ensure fresh sign-in by signing out first
-  //     await GoogleSignin.signOut();
+  const handleGoogleSignIn = async () => {
+    try {
+      // 1. Ensure fresh sign-in by signing out first
+      await GoogleSignin.signOut();
       
-  //     // 2. Configure with proper scopes
-  //     await GoogleSignin.configure({
-  //       webClientId: '421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com',
-  //       iosClientId: '421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com',
-  //       offlineAccess: false,
-  //       forceCodeForRefreshToken: true,
-  //       scopes: ['profile', 'email'] // Add required scopes
-  //     });
+      // 2. Configure with proper scopes
+      await GoogleSignin.configure({
+        webClientId: '421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com',
+        iosClientId: '421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com',
+        offlineAccess: false,
+        forceCodeForRefreshToken: true,
+        scopes: ['profile', 'email'] // Add required scopes
+      });
 
-  //     // 3. Perform the sign-in
-  //     const { idToken, accessToken } = await GoogleSignin.signIn();
+      // 3. Perform the sign-in
+      const { idToken, accessToken } = await GoogleSignin.signIn();
       
-  //     // 4. Create credential with both tokens
-  //     const credential = auth.GoogleAuthProvider.credential(idToken, accessToken);
+      // 4. Create credential with both tokens
+      const credential = auth.GoogleAuthProvider.credential(idToken, accessToken);
       
-  //     // 5. Sign in with Firebase
-  //     const authResult = await auth().signInWithCredential(credential);
+      // 5. Sign in with Firebase
+      const authResult = await auth().signInWithCredential(credential);
       
-  //     // 6. Verify the authentication
-  //     if (authResult?.user) {
-  //       console.log('Firebase user UID:', authResult.user.uid);
-  //       navigation.navigate('HomeFirst');
-  //     } else {
-  //       throw new Error('No user returned from Firebase');
-  //     }
-  //   } catch (error) {
-  //     console.error('Authentication Error:', {
-  //       code: error.code,
-  //       message: error.message,
-  //       fullError: JSON.stringify(error, null, 2)
-  //     });
+      // 6. Verify the authentication
+      if (authResult?.user) {
+        console.log('Firebase user UID:', authResult.user.uid);
+        navigation.navigate('HomeFirst');
+      } else {
+        throw new Error('No user returned from Firebase');
+      }
+    } catch (error) {
+      console.error('Authentication Error:', {
+        code: error.code,
+        message: error.message,
+        fullError: JSON.stringify(error, null, 2)
+      });
       
-  //     if (error.code === 'auth/internal-error') {
-  //       Alert.alert(
-  //         'Configuration Error', error.message, 
-  //         'Please check your Firebase and Google Sign-In setup',
-  //         [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
-  //       );
-  //     } else {
-  //       Alert.alert('Error', error.message || 'Authentication failed');
-  //     }
-  //   }
-  // };
+      if (error.code === 'auth/internal-error') {
+        Alert.alert(
+          'Configuration Error', error.message, 
+          'Please check your Firebase and Google Sign-In setup',
+          [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+        );
+      } else {
+        Alert.alert('Error', error.message || 'Authentication failed');
+      }
+    }
+  };
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -110,16 +126,17 @@ export default function SignIn() {
         
         <Text style={{color:"white"}}>Welcome to the pantry of your dreams!</Text>
         <Text></Text>
-        <Text style = {{ color: "white", fontSize: 24, marginBottom: 10 }}>Email:</Text>
-        <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" style={{ backgroundColor: "white", width: 300, borderBottomLength: 10 , marginBottom: 5 }} />
-        <Text style = {{ color: "white", fontSize: 24, marginBottom: 10 }}>Password:</Text>
-        <TextInput value={password} onChangeText={setPassword} secureTextEntry style={{ backgroundColor: "white", width: 300, borderBottomLength: 10 , marginBottom: 10 }} />
+        <Text style = {{ color: "white", fontSize: 14, marginBottom: 5 }}>Email:</Text>
+        <TextInput value={email} placeholder="Email" onChangeText={setEmail} autoCapitalize="none"  style={{ backgroundColor: "white", width: 300, padding: 10, marginBottom: 20, borderRadius: 5 }} />
+        <Text style = {{ color: "white", fontSize: 14, marginBottom: 5}}>Password:</Text>
+        <TextInput value={password} placeholder="Password" onChangeText={setPassword} secureTextEntry  style={{ backgroundColor: "white", width: 300, padding: 10, marginBottom: 20, borderRadius: 5 }} />
+        <Text></Text>
         <TouchableOpacity
           //if using google auth uncomment the following
           onPress={()=>signInWithEmail()} style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 250, alignItems:"center" }}
           
         >
-          <Text>Sign in with email</Text>
+          <Text>Sign In</Text>
           
         </TouchableOpacity>
         {/* sign up button */}

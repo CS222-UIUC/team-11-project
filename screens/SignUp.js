@@ -38,13 +38,14 @@ export default function SignUp() {
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f2570a" }}>
         <Text style={{ fontSize: 24, color: "white", marginBottom: 20 }}>Create an Account</Text>
         
+        <Text style = {{ color: "white", fontSize: 14, marginBottom: 5 }}>Name:</Text>
         <TextInput
           placeholder="Name"
           value={name}
           onChangeText={setName}
           style={{ backgroundColor: "white", width: 300, padding: 10, marginBottom: 10, borderRadius: 5 }}
         />
-
+        <Text style = {{ color: "white", fontSize: 14, marginBottom: 5 }}>Email:</Text>
         <TextInput
           placeholder="Email"
           value={email}
@@ -52,7 +53,7 @@ export default function SignUp() {
           autoCapitalize="none"
           style={{ backgroundColor: "white", width: 300, padding: 10, marginBottom: 10, borderRadius: 5 }}
         />
-
+        <Text style = {{ color: "white", fontSize: 14, marginBottom: 5 }}>Password:</Text>
         <TextInput
           placeholder="Password"
           value={password}
@@ -60,7 +61,7 @@ export default function SignUp() {
           secureTextEntry
           style={{ backgroundColor: "white", width: 300, padding: 10, marginBottom: 20, borderRadius: 5 }}
         />
-
+        <Text></Text>
         <TouchableOpacity onPress={handleSignUp} style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 250, alignItems: "center" }}>
           <Text>Sign Up</Text>
         </TouchableOpacity>

@@ -1,14 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-
-// initial food data -> CHANGE BASED ON HOW WE STORE DATA
-const initialFoodItems = [
-  { id: '1', name: 'Milk', expirationDate: '2025-03-22' },
-  { id: '2', name: 'Eggs', expirationDate: '2025-03-24' },
-  { id: '3', name: 'Lettuce', expirationDate: '2025-03-21' },
-  { id: '4', name: 'Yogurt', expirationDate: '2025-03-19' },
-  { id: '5', name: 'Cereal', expirationDate: '2026-03-19' },
-];
+import firestore from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const getDaysUntilExpiration = (expirationDate) => {
   const today = new Date();
@@ -18,25 +11,46 @@ const getDaysUntilExpiration = (expirationDate) => {
 };
 
 const getBoxColor = (daysLeft) => {
-  // Green (Safe)
-  if (daysLeft >= 5) return '#bdf7a3';
-  // Yellow (Caution)
-  if (daysLeft >= 2) return '#f0c986';
-  // Red (Expired)
-  if (daysLeft < 0) return '#fc8d99';
-  // Orange (Expiring Soon)
-  return '#f28e5c';
+  if (daysLeft >= 5) return '#bdf7a3';      // Green
+  if (daysLeft >= 2) return '#f0c986';      // Yellow
+  if (daysLeft < 0) return '#fc8d99';       // Red
+  return '#f28e5c';                         // Orange
 };
 
 const getProgressBarWidth = (daysLeft) => {
-  const maxDays = 7; // assume max freshness lasts 7 days
+  const maxDays = 7;
   return `${Math.max(0, Math.min(100, (daysLeft / maxDays) * 100))}%`;
 };
 
 export default function Pantry() {
-  const [foodItems, setFoodItems] = useState(initialFoodItems);
+  const [foodItems, setFoodItems] = useState([]);
 
-  const deleteItem = (id, name) => {
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const userUID = await AsyncStorage.getItem('userUID');
+        if (!userUID) return;
+
+        const pantryRef = firestore().collection('users').doc(userUID).collection('pantry');
+
+        const unsubscribe = pantryRef.onSnapshot(snapshot => {
+          const items = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setFoodItems(items);
+        });
+
+        return () => unsubscribe();
+      } catch (error) {
+        console.error('Error fetching pantry items:', error);
+      }
+    };
+
+    fetchItems();
+  }, []);
+
+  const deleteItem = async (id, name) => {
     Alert.alert(
       "Delete Item?",
       `Are you sure you want to remove ${name} from the pantry?`,
@@ -44,21 +58,32 @@ export default function Pantry() {
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
-          onPress: () => {
-            setFoodItems(foodItems.filter(item => item.id !== id));
+          onPress: async () => {
+            try {
+              const userUID = await AsyncStorage.getItem('userUID');
+              if (!userUID) return;
+
+              await firestore()
+                .collection('users')
+                .doc(userUID)
+                .collection('pantry')
+                .doc(id)
+                .delete();
+            } catch (error) {
+              console.error('Error deleting item:', error);
+            }
           },
         },
       ]
     );
   };
 
-  // sort food items by expiration date ascending
   const sortedItems = [...foodItems].sort(
-    (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
+    (a, b) => new Date(a.expiration) - new Date(b.expiration)
   );
 
   const FoodItemBox = ({ item }) => {
-    const daysLeft = getDaysUntilExpiration(item.expirationDate);
+    const daysLeft = getDaysUntilExpiration(item.expiration);
     const backgroundColor = getBoxColor(daysLeft);
     const progressBarWidth = getProgressBarWidth(daysLeft);
 
@@ -92,30 +117,28 @@ export default function Pantry() {
   );
 }
 
-const ExpirationLegend = () => {
-  return (
-    <View style={styles.legendContainer}>
-      <Text style={styles.legendTitle}>Expiration Safety Scale:</Text>
-      <View style={styles.legendItem}>
-        <View style={[styles.legendColor, { backgroundColor: '#bdf7a3' }]} />
-        <Text>Safe (5+ days left)</Text>
-      </View>
-      <View style={styles.legendItem}>
-        <View style={[styles.legendColor, { backgroundColor: '#f0c986' }]} />
-        <Text>Caution (2-4 days left)</Text>
-      </View>
-      <View style={styles.legendItem}>
-        <View style={[styles.legendColor, { backgroundColor: '#f28e5c' }]} />
-        <Text>Expiring Soon (0-1 days left)</Text>
-      </View>
-      <View style={styles.legendItem}>
-        <View style={[styles.legendColor, { backgroundColor: '#fc8d99' }]} />
-        <Text>Expired (Past due)</Text>
-      </View>
-      <Text>Click on an item to remove it from your pantry!</Text>
+const ExpirationLegend = () => (
+  <View style={styles.legendContainer}>
+    <Text style={styles.legendTitle}>Expiration Safety Scale:</Text>
+    <View style={styles.legendItem}>
+      <View style={[styles.legendColor, { backgroundColor: '#bdf7a3' }]} />
+      <Text>Safe (5+ days left)</Text>
     </View>
-  );
-};
+    <View style={styles.legendItem}>
+      <View style={[styles.legendColor, { backgroundColor: '#f0c986' }]} />
+      <Text>Caution (2-4 days left)</Text>
+    </View>
+    <View style={styles.legendItem}>
+      <View style={[styles.legendColor, { backgroundColor: '#f28e5c' }]} />
+      <Text>Expiring Soon (0-1 days left)</Text>
+    </View>
+    <View style={styles.legendItem}>
+      <View style={[styles.legendColor, { backgroundColor: '#fc8d99' }]} />
+      <Text>Expired (Past due)</Text>
+    </View>
+    <Text>Click on an item to remove it from your pantry!</Text>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -140,7 +163,7 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color:'black'
+    color: 'black',
   },
   expirationText: {
     fontSize: 14,

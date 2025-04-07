@@ -6,16 +6,13 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Platform,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function AddItem() {
   const [itemName, setItemName] = useState("");
-  const [expirationDate, setExpirationDate] = useState(new Date());
-  const [showPicker, setShowPicker] = useState(false);
+  const [expirationDate, setExpirationDate] = useState("");
 
   const handleAddItem = async () => {
     if (!itemName || !expirationDate) {
@@ -36,13 +33,13 @@ export default function AddItem() {
         .collection("pantry")
         .add({
           name: itemName,
-          expiration: expirationDate.toISOString(),
+          expiration: expirationDate,
           addedAt: firestore.FieldValue.serverTimestamp(),
         });
 
-      Alert.alert("Item added!", `${itemName} (expires on ${expirationDate.toDateString()})`);
+      Alert.alert("Item added!", `${itemName} (expires on ${expirationDate})`);
       setItemName("");
-      setExpirationDate(new Date());
+      setExpirationDate("");
     } catch (error) {
       console.error("Error adding item:", error);
       Alert.alert("Error", "Could not add item.");
@@ -60,46 +57,12 @@ export default function AddItem() {
         onChangeText={setItemName}
       />
 
-      {/* Touchable expiration date picker trigger (for Android only) */}
-      <TouchableOpacity
-        onPress={() => {
-          if (Platform.OS === "android") setShowPicker(true);
-        }}
-        style={[styles.input, { justifyContent: "center" }]}
-        activeOpacity={0.7}
-      >
-        <Text style={{ color: "#000" }}>
-          {expirationDate.toDateString()}
-        </Text>
-      </TouchableOpacity>
-
-      {/* iOS Picker - Always visible inline */}
-      {Platform.OS === "ios" && (
-        <DateTimePicker
-          value={expirationDate}
-          mode="date"
-          display="spinner"
-          onChange={(event, selectedDate) => {
-            if (selectedDate) setExpirationDate(selectedDate);
-          }}
-          style={{ marginVertical: 20 }}
-        />
-      )}
-
-      {/* Android Picker - Conditional Modal */}
-      {Platform.OS === "android" && showPicker && (
-        <DateTimePicker
-          value={expirationDate}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            if (event.type === "set" && selectedDate) {
-              setExpirationDate(selectedDate);
-            }
-            setShowPicker(false);
-          }}
-        />
-      )}
+      <TextInput
+        style={styles.input}
+        placeholder="Expiration date (e.g., 2025-04-10)"
+        value={expirationDate}
+        onChangeText={setExpirationDate}
+      />
 
       <TouchableOpacity style={styles.button} onPress={handleAddItem}>
         <Text style={styles.buttonText}>Add Item</Text>

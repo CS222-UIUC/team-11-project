@@ -4,6 +4,7 @@ import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-si
 import auth from "@react-native-firebase/auth";
 // import logo_img from "./resources/SHELP.svg";
 import {NavigationContainer} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 import { getApps } from "@react-native-firebase/app";
@@ -27,6 +28,22 @@ export default function SignIn() {
     }
   }, []);
 
+  useEffect(() => {
+    const checkIfUserIsLoggedIn = async () => {
+      try {
+        const uid = await AsyncStorage.getItem('userUID');
+        if (uid !== null) {
+          console.log('User already signed in:', uid);
+          navigation.navigate('HomeFirst');
+        }
+      } catch (error) {
+        console.error('Error checking user UID in AsyncStorage:', error);
+      }
+    };
+  
+    checkIfUserIsLoggedIn();
+  }, []);
+
   // Normal email sign in
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,7 +51,13 @@ export default function SignIn() {
   const signInWithEmail = async () => {
     try {
       console.log('Attempting sign-in with email:', email);
-      await auth().signInWithEmailAndPassword(email, password);
+      const userCredential = await auth().signInWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+  
+      // Save UID locally
+      await AsyncStorage.setItem('userUID', user.uid);
+  
+      console.log('Signed in! UID saved locally:', user.uid);
       navigation.navigate('HomeFirst');
     } catch (error) {
       console.error('Sign-in error:', error);
@@ -103,16 +126,17 @@ export default function SignIn() {
         
         <Text style={{color:"white"}}>Welcome to the pantry of your dreams!</Text>
         <Text></Text>
-        <Text style = {{ color: "white", fontSize: 24, marginBottom: 10 }}>Email:</Text>
-        <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" style={{ backgroundColor: "white", width: 300, borderBottomLength: 10 , marginBottom: 5 }} />
-        <Text style = {{ color: "white", fontSize: 24, marginBottom: 10 }}>Password:</Text>
-        <TextInput value={password} onChangeText={setPassword} secureTextEntry style={{ backgroundColor: "white", width: 300, borderBottomLength: 10 , marginBottom: 10 }} />
+        <Text style = {{ color: "white", fontSize: 14, marginBottom: 5 }}>Email:</Text>
+        <TextInput value={email} placeholder="Email" onChangeText={setEmail} autoCapitalize="none"  style={{ backgroundColor: "white", width: 300, padding: 10, marginBottom: 20, borderRadius: 5 }} />
+        <Text style = {{ color: "white", fontSize: 14, marginBottom: 5}}>Password:</Text>
+        <TextInput value={password} placeholder="Password" onChangeText={setPassword} secureTextEntry  style={{ backgroundColor: "white", width: 300, padding: 10, marginBottom: 20, borderRadius: 5 }} />
+        <Text></Text>
         <TouchableOpacity
           //if using google auth uncomment the following
           onPress={()=>signInWithEmail()} style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 250, alignItems:"center" }}
           
         >
-          <Text>Sign in with email</Text>
+          <Text>Sign In</Text>
           
         </TouchableOpacity>
         {/* sign up button */}
@@ -124,7 +148,7 @@ export default function SignIn() {
         </TouchableOpacity>
         {/* <Button title="Sign In" onPress={signInWithEmail} style = {{marginBottom: 10}}/> */}
         {/* <Text style={{ fontSize: 20, marginBottom: 20 }}>Welcome to the App</Text> */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           //if using google auth uncomment the following
           onPress={()=>handleGoogleSignIn()}
           //if not using google auth uncomment the following
@@ -132,7 +156,7 @@ export default function SignIn() {
           style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 250, alignItems:"center", marginTop: 10 }}
         >
           <Text>Sign in with Google</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         
 

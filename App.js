@@ -8,6 +8,7 @@ import Home from "./screens/Home";
 import AddItem from './screens/AddItem';
 import Pantry from './screens/Pantry'
 import Profile from './screens/Profile'
+import RecipeAssistant from './screens/RecipeAssistant';
 const Stack = createNativeStackNavigator();
 
 
@@ -41,8 +42,14 @@ export default function App() {
           component={InitNavigator}
           options={{ headerShown: false}}
         />
+        <Stack.Screen
+          name="RecipeAssistant"
+          component={RecipeAssistant}
+          options={{ title: "AI Recipe Assistant" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
+    
   );
 }
 

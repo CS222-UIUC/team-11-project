@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+
 
 const getDaysUntilExpiration = (expirationDate) => {
   const today = new Date();
@@ -106,13 +108,27 @@ export default function Pantry() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Welcome to your pantry!</Text>
-      <ExpirationLegend />
-      <FlatList
-        data={sortedItems}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <FoodItemBox item={item} />}
-      />
+    <Text style={styles.header}>Welcome to your pantry!</Text>
+    <ExpirationLegend />
+
+    <TouchableOpacity
+      style={{
+        backgroundColor: '#4285f4',
+        padding: 15,
+        borderRadius: 10,
+        marginVertical: 10,
+        alignItems: 'center',
+      }}
+      onPress={() => navigation.navigate('RecipeAssistant')}
+    >
+      <Text style={{ color: '#fff', fontWeight: 'bold' }}>AI: What Can I Cook?</Text>
+    </TouchableOpacity>
+
+    <FlatList
+      data={sortedItems}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => <FoodItemBox item={item} />}
+    />
     </View>
   );
 }
@@ -139,6 +155,8 @@ const ExpirationLegend = () => (
     <Text>Click on an item to remove it from your pantry!</Text>
   </View>
 );
+
+
 
 const styles = StyleSheet.create({
   container: {

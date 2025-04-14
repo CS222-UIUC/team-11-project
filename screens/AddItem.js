@@ -5,14 +5,18 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
   Alert,
 } from "react-native";
 import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function AddItem() {
   const [itemName, setItemName] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
 
   const handleAddItem = async () => {
     if (!itemName || !expirationDate) {
@@ -46,28 +50,56 @@ export default function AddItem() {
     }
   };
 
+  const handleDateChange = (event, selectedDate) => {
+    if (event.type === "set") {
+      const formatted = selectedDate.toISOString().split("T")[0]; // yyyy-mm-dd
+      setExpirationDate(formatted);
+    }
+    setShowPicker(false);
+  };
+
   return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
     <View style={styles.container}>
       <Text style={styles.header}>Add a new item to your pantry:</Text>
 
+      <Text style = {{ color: "black", fontSize: 20, marginBottom: 5 }}>Item:</Text>
       <TextInput
         style={styles.input}
-        placeholder="Item name"
+        placeholder="Enter item name"
+        placeholderTextColor="#999" 
+        
         value={itemName}
         onChangeText={setItemName}
       />
 
-      <TextInput
+      <Text style = {{ color: "black", fontSize: 20, marginBottom: 5 }}>Expiration Date:</Text>
+      <TouchableOpacity
         style={styles.input}
-        placeholder="Expiration date (e.g., 2025-04-10)"
-        value={expirationDate}
-        onChangeText={setExpirationDate}
-      />
+        onPress={() => setShowPicker(true)}
+      >
+        <Text style={expirationDate ? styles.dateText : styles.placeholder}>
+          {expirationDate || "Select expiration date"}
+        </Text>
+      </TouchableOpacity>
+
+      {showPicker && (
+        <DateTimePicker
+          value={expirationDate ? new Date(expirationDate) : new Date()}
+          mode="date"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          onChange={handleDateChange}
+          textColor="#000"
+        />
+      )}
+
+
 
       <TouchableOpacity style={styles.button} onPress={handleAddItem}>
         <Text style={styles.buttonText}>Add Item</Text>
       </TouchableOpacity>
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -103,5 +135,22 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  placeholder: {
+    color: "#999",
+    fontSize: 16,
+  },
+  dateText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  input: {
+    height: 50,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    justifyContent: "center",
   },
 });

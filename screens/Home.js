@@ -55,10 +55,10 @@ export default function Home() {
       
       <Text style={styles.header}>Welcome to Shelp, {userData.name}!</Text>
 
-    <View style = {styles.summaryBox}>
-      <Text> style = {styles.summaryText} Total items in pantry: {pantryStats.total}</Text>
-      <Text> style = {styles.summaryText} Expiring soon: {pantryStats.expiringSoon} </Text>
-    </View>
+    
+      <Text style = {styles.summaryText}> Total items in pantry: {pantryStats.total}</Text>
+      <Text style = {styles.summaryText}> Expiring soon: {pantryStats.expiringSoon} </Text>
+    
 
     </View>
 

@@ -5,6 +5,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home() {
   const [userData, setUserData] = useState({ name: ''});
+
+  // pantry data
+  const[pantryStats, setPantryStats] = useState({total: 0, expiringSoon: 0});
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -16,6 +19,30 @@ export default function Home() {
           const data = doc.data();
           setUserData({ name: data.name});
         }
+
+        const pantrySnapShot = await firestore()
+          .collection('users')
+          .doc(uid)
+          .collection('pantry')
+          .get();
+        
+        const item = pantrySnapShot.docs.map(doc => doc.data());
+
+        const today = new Date();
+        const soonThreshold = new Date();
+        soonThreshold.setDate(today.getDate() + 2); // shows items expiring within two days (can change if we want)
+
+        let expiringSoon = 0;
+
+        items.forEach(item => {
+          const expDate = new Date(item.expiration);
+          if (expDate <= soonThreshold && expDate >= today){
+            expiringSoon +=1 
+          }
+        });
+
+        setPantryStats({total: items.length, expiringSoon});
+
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -27,7 +54,15 @@ export default function Home() {
     <View style={styles.container}>
       
       <Text style={styles.header}>Welcome to Shelp, {userData.name}!</Text>
+
+    <View style = {styles.summaryBox}>
+      <Text> style = {styles.summaryText} Total items in pantry: {pantryStats.total}</Text>
+      <Text> style = {styles.summaryText} Expiring soon: {pantryStats.expiringSoon} </Text>
     </View>
+
+    </View>
+
+
   );
 }
 
@@ -43,5 +78,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+  },
+  summaryBox:{
+    backgroundColor: '#f3f3f3',
+    padding: 20,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  summaryText:{
+    fontSize: 18,
+    marginBottom: 10,
   },
 });

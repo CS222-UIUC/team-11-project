@@ -294,7 +294,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.company.shelp;
+				PRODUCT_BUNDLE_IDENTIFIER = shelp.com;
 				PRODUCT_NAME = Shelp;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;

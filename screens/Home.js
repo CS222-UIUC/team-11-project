@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState , useCallback} from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import {Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,48 +9,52 @@ export default function Home() {
 
   // pantry data
   const[pantryStats, setPantryStats] = useState({total: 0, expiringSoon: 0});
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const uid = await AsyncStorage.getItem('userUID');
-        if (!uid) return;
-
-        const doc = await firestore().collection('users').doc(uid).get();
-        if (doc.exists) {
-          const data = doc.data();
-          setUserData({ name: data.name});
-        }
-
-        const pantrySnapShot = await firestore()
-          .collection('users')
-          .doc(uid)
-          .collection('pantry')
-          .get();
-        
-        const item = pantrySnapShot.docs.map(doc => doc.data());
-
-        const today = new Date();
-        const soonThreshold = new Date();
-        soonThreshold.setDate(today.getDate() + 2); // shows items expiring within two days (can change if we want)
-
-        let expiringSoon = 0;
-
-        items.forEach(item => {
-          const expDate = new Date(item.expiration);
-          if (expDate <= soonThreshold && expDate >= today){
-            expiringSoon +=1 
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUserData = async () => {
+        try {
+          const uid = await AsyncStorage.getItem('userUID');
+          if (!uid) return;
+  
+          const doc = await firestore().collection('users').doc(uid).get();
+          if (doc.exists) {
+            const data = doc.data();
+            setUserData({ name: data.name });
           }
-        });
-
-        setPantryStats({total: items.length, expiringSoon});
-
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
+  
+          const pantrySnapShot = await firestore()
+            .collection('users')
+            .doc(uid)
+            .collection('pantry')
+            .get();
+          
+          const items = pantrySnapShot.docs.map(doc => doc.data());
+  
+          const today = new Date();
+          const soonThreshold = new Date();
+          soonThreshold.setDate(today.getDate() + 3);
+  
+          let expiringSoon = 0;
+  
+          items.forEach(item => {
+            const expDate = new Date(item.expiration);
+            if (expDate <= soonThreshold && expDate >= today) {
+              expiringSoon += 1;
+            }
+          });
+  
+          setPantryStats({ total: items.length, expiringSoon });
+  
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      };
+  
+      fetchUserData();
+  
+    }, []) // <-- dependencies array
+  );
+  
   return (
     <View style={styles.container}>
       

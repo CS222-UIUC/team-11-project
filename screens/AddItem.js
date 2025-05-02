@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
+  Platform,
 } from "react-native";
 import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,14 +21,14 @@ export default function AddItem() {
 
   const handleAddItem = async () => {
     if (!itemName || !expirationDate) {
-      Alert.alert("Please enter the item name and expiration date.");
+      Alert.alert("Missing Fields", "Please enter both item name and expiration date.");
       return;
     }
 
     try {
       const userUID = await AsyncStorage.getItem("userUID");
       if (!userUID) {
-        Alert.alert("User not signed in.");
+        Alert.alert("Error", "User not signed in.");
         return;
       }
 
@@ -41,7 +42,7 @@ export default function AddItem() {
           addedAt: firestore.FieldValue.serverTimestamp(),
         });
 
-      Alert.alert("Item added!", `${itemName} (expires on ${expirationDate})`);
+      Alert.alert("🎉 Item added!", `${itemName} (expires on ${expirationDate})`);
       setItemName("");
       setExpirationDate("");
     } catch (error) {
@@ -59,98 +60,103 @@ export default function AddItem() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-    <View style={styles.container}>
-      <Text style={styles.header}>Add a new item to your pantry:</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <Text style={styles.header}>Add a Pantry Item</Text>
+        <Text style={styles.subtext}>Keep your kitchen organized by tracking food before it spoils!</Text>
 
-      <Text style = {{ color: "black", fontSize: 20, marginBottom: 5 }}>Item:</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter item name"
-        placeholderTextColor="#999" 
-        
-        value={itemName}
-        onChangeText={setItemName}
-      />
+        <View style={styles.inputSection}>
+          <Text style={styles.label}>Item Name</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. Milk, Pasta, Apples"
+            placeholderTextColor="#aaa"
+            value={itemName}
+            onChangeText={setItemName}
+          />
+        </View>
 
-      <Text style = {{ color: "black", fontSize: 20, marginBottom: 5 }}>Expiration Date:</Text>
-      <TouchableOpacity
-        style={styles.input}
-        onPress={() => setShowPicker(true)}
-      >
-        <Text style={expirationDate ? styles.dateText : styles.placeholder}>
-          {expirationDate || "Select expiration date"}
-        </Text>
-      </TouchableOpacity>
+        <View style={styles.inputSection}>
+          <Text style={styles.label}>Expiration Date</Text>
+          <TouchableOpacity style={styles.input} onPress={() => setShowPicker(true)}>
+            <Text style={expirationDate ? styles.dateText : styles.placeholder}>
+              {expirationDate || "Select expiration date"}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      {showPicker && (
-        <DateTimePicker
-          value={expirationDate ? new Date(expirationDate) : new Date()}
-          mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={handleDateChange}
-          textColor="#000"
-        />
-      )}
+        {showPicker && (
+          <DateTimePicker
+            value={expirationDate ? new Date(expirationDate) : new Date()}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={handleDateChange}
+            textColor="#000"
+          />
+        )}
 
-
-
-      <TouchableOpacity style={styles.button} onPress={handleAddItem}>
-        <Text style={styles.buttonText}>Add Item</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.button} onPress={handleAddItem}>
+          <Text style={styles.buttonText}>➕ Add Item</Text>
+        </TouchableOpacity>
+      </View>
     </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 100,
-    paddingHorizontal: 20,
-    backgroundColor: "#fff",
     flex: 1,
+    backgroundColor: "#fff",
+    paddingTop: 80,
+    paddingHorizontal: 24,
   },
   header: {
     fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 20,
+    fontWeight: "700",
     textAlign: "center",
+    marginBottom: 10,
+    color: "#f2570a",
+  },
+  subtext: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "#777",
+    marginBottom: 30,
+  },
+  inputSection: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    color: "#444",
+    marginBottom: 5,
+    fontWeight: "500",
   },
   input: {
     height: 50,
-    borderColor: "#ccc",
-    borderWidth: 1,
+    backgroundColor: "#f1f1f1",
     borderRadius: 10,
     paddingHorizontal: 15,
-    marginBottom: 15,
+    justifyContent: "center",
+  },
+  placeholder: {
+    fontSize: 16,
+    color: "#999",
+  },
+  dateText: {
+    fontSize: 16,
+    color: "#333",
   },
   button: {
     backgroundColor: "#f2570a",
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 20,
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
-  },
-  placeholder: {
-    color: "#999",
-    fontSize: 16,
-  },
-  dateText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  input: {
-    height: 50,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    justifyContent: "center",
   },
 });

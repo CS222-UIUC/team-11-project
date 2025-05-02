@@ -1,17 +1,22 @@
-import { useEffect , useState} from "react";
-import {Text, View, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Keyboard, Image, TouchableOpacity, Alert } from "react-native";
-import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
+import React, { useEffect, useState } from "react";
+import {
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Image,
+  Alert,
+} from "react-native";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import auth from "@react-native-firebase/auth";
-// import logo_img from "./resources/SHELP.svg";
-import {NavigationContainer} from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getApps } from "@react-native-firebase/app";
-console.log("Firebase Apps:", getApps());
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 
-// Configure Google Sign-In
+// Google Sign-In Configuration
 GoogleSignin.configure({
   webClientId: "421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com",
   iosClientId: "421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com",
@@ -21,146 +26,186 @@ GoogleSignin.configure({
 
 export default function SignIn() {
   const navigation = useNavigation();
-  useEffect(() => {
-    // Initialize Firebase
-    if (getApps().length === 0) {
-      initializeApp();
-    }
-  }, []);
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  // Auto-redirect if already signed in
   useEffect(() => {
     const checkIfUserIsLoggedIn = async () => {
       try {
         const uid = await AsyncStorage.getItem('userUID');
-        if (uid !== null) {
+        if (uid) {
           console.log('User already signed in:', uid);
           navigation.navigate('HomeFirst');
         }
       } catch (error) {
-        console.error('Error checking user UID in AsyncStorage:', error);
+        console.error('Error checking user UID:', error);
       }
     };
-  
     checkIfUserIsLoggedIn();
   }, []);
 
-  // Normal email sign in
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
   const signInWithEmail = async () => {
     try {
-      console.log('Attempting sign-in with email:', email);
       const userCredential = await auth().signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
-  
-      // Save UID locally
       await AsyncStorage.setItem('userUID', user.uid);
-  
-      console.log('Signed in! UID saved locally:', user.uid);
+      console.log('Signed in with email:', user.uid);
       navigation.navigate('HomeFirst');
     } catch (error) {
-      console.error('Sign-in error:', error);
+      console.error('Email sign-in error:', error);
       Alert.alert('Error', error.message);
     }
   };
 
-  // google sign in
   const handleGoogleSignIn = async () => {
     try {
-      // 1. Ensure fresh sign-in by signing out first
-      await GoogleSignin.signOut();
-      
-      // 2. Configure with proper scopes
+      await GoogleSignin.signOut(); // Ensure fresh sign-in
       await GoogleSignin.configure({
-        webClientId: '421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com',
-        iosClientId: '421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com',
+        webClientId: "421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com",
+        iosClientId: "421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com",
         offlineAccess: false,
         forceCodeForRefreshToken: true,
-        scopes: ['profile', 'email'] // Add required scopes
+        scopes: ["profile", "email"]
       });
 
-      // 3. Perform the sign-in
       const { idToken, accessToken } = await GoogleSignin.signIn();
-      
-      // 4. Create credential with both tokens
       const credential = auth.GoogleAuthProvider.credential(idToken, accessToken);
-      
-      // 5. Sign in with Firebase
       const authResult = await auth().signInWithCredential(credential);
-      
-      // 6. Verify the authentication
+
       if (authResult?.user) {
-        console.log('Firebase user UID:', authResult.user.uid);
+        await AsyncStorage.setItem('userUID', authResult.user.uid);
+        console.log('Google sign-in UID:', authResult.user.uid);
         navigation.navigate('HomeFirst');
       } else {
-        throw new Error('No user returned from Firebase');
+        throw new Error('Google sign-in failed');
       }
     } catch (error) {
-      console.error('Authentication Error:', {
-        code: error.code,
-        message: error.message,
-        fullError: JSON.stringify(error, null, 2)
-      });
-      
-      if (error.code === 'auth/internal-error') {
-        Alert.alert(
-          'Configuration Error', error.message, 
-          'Please check your Firebase and Google Sign-In setup',
-          [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
-        );
-      } else {
-        Alert.alert('Error', error.message || 'Authentication failed');
-      }
+      console.error('Google sign-in error:', error);
+      Alert.alert('Authentication Error', error.message || 'Failed to sign in with Google');
     }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f2570a" }}>
-        
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
         <Image
           source={require("../resources/SHELPW.png")}
-          style={{ width: 200, height: 200}}
+          style={styles.logo}
+          resizeMode="contain"
         />
-        
-        <Text style={{color:"white"}}>Welcome to the pantry of your dreams!</Text>
-        <Text></Text>
-        <Text style = {{ color: "white", fontSize: 14, marginBottom: 5 }}>Email:</Text>
-        <TextInput value={email} placeholder="Email" onChangeText={setEmail} autoCapitalize="none"  style={{ backgroundColor: "white", width: 300, padding: 10, marginBottom: 20, borderRadius: 5 }} />
-        <Text style = {{ color: "white", fontSize: 14, marginBottom: 5}}>Password:</Text>
-        <TextInput value={password} placeholder="Password" onChangeText={setPassword} secureTextEntry  style={{ backgroundColor: "white", width: 300, padding: 10, marginBottom: 20, borderRadius: 5 }} />
-        <Text></Text>
-        <TouchableOpacity
-          //if using google auth uncomment the following
-          onPress={()=>signInWithEmail()} style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 250, alignItems:"center" }}
-          
-        >
-          <Text>Sign In</Text>
-          
-        </TouchableOpacity>
-        {/* sign up button */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate('SignUp')}
-          style={{ padding: 10, borderRadius: 5, width: 250, alignItems: "center", marginBottom: 20 }}
-        >
-          <Text style={{ color: "white" }}>Don't have an account? Sign up</Text>
-        </TouchableOpacity>
-        {/* <Button title="Sign In" onPress={signInWithEmail} style = {{marginBottom: 10}}/> */}
-        {/* <Text style={{ fontSize: 20, marginBottom: 20 }}>Welcome to the App</Text> */}
-        {/* <TouchableOpacity
-          //if using google auth uncomment the following
-          onPress={()=>handleGoogleSignIn()}
-          //if not using google auth uncomment the following
-          // onPress={()=>navigation.navigate('HomeFirst')}
-          style={{ padding: 10, backgroundColor: "white", borderRadius: 5, width: 250, alignItems:"center", marginTop: 10 }}
-        >
-          <Text>Sign in with Google</Text>
-        </TouchableOpacity> */}
 
-        
+        <Text style={styles.title}>Welcome to the pantry of your dreams!</Text>
 
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            value={email}
+            placeholder="Enter your email"
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            style={styles.input}
+            placeholderTextColor="#888"
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            value={password}
+            placeholder="Enter your password"
+            onChangeText={setPassword}
+            secureTextEntry
+            style={styles.input}
+            placeholderTextColor="#888"
+          />
+        </View>
+
+        <TouchableOpacity style={styles.signInButton} onPress={signInWithEmail}>
+          <Text style={styles.signInButtonText}>Sign In</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.signUpText}>
+            Don't have an account? <Text style={{ fontWeight: 'bold' }}>Sign Up</Text>
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleGoogleSignIn} style={styles.googleButton}>
+          <Text style={styles.googleButtonText}>Sign in with Google</Text>
+        </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f2570a",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  logo: {
+    width: 180,
+    height: 180,
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 18,
+    color: "white",
+    marginBottom: 30,
+    textAlign: "center",
+    fontWeight: "600",
+  },
+  inputContainer: {
+    width: "100%",
+    marginBottom: 15,
+  },
+  label: {
+    color: "white",
+    fontSize: 14,
+    marginBottom: 5,
+    fontWeight: "500",
+  },
+  input: {
+    backgroundColor: "white",
+    padding: 12,
+    borderRadius: 10,
+    fontSize: 16,
+  },
+  signInButton: {
+    backgroundColor: "#fff",
+    width: "100%",
+    padding: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 15,
+  },
+  signInButtonText: {
+    color: "#f2570a",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  signUpText: {
+    color: "white",
+    fontSize: 14,
+    marginBottom: 20,
+  },
+  googleButton: {
+    marginTop: 10,
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  googleButtonText: {
+    color: "#4285F4",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+});

@@ -52,6 +52,9 @@ import { faHome } from '@fortawesome/free-solid-svg-icons/faHome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus'
 import { faList } from '@fortawesome/free-solid-svg-icons/faList'
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
+import { faBook } from '@fortawesome/free-solid-svg-icons/faBook';
+
+import Recipe from './screens/Recipe';
 
 const Tab = createBottomTabNavigator();
 const InitNavigator = () => {
@@ -88,9 +91,16 @@ const InitNavigator = () => {
           }}/>
           <Tab.Screen name="Pantry" component={Pantry} 
           options={{
-            tabBarLabel: 'View Pantry',
+            tabBarLabel: 'Pantry',
             tabBarIcon: ({ focused, color, size }) => (
               <FontAwesomeIcon icon={faList} size={20} color={focused?'#f2570a':'white'} />
+            ),
+          }}/>
+          <Tab.Screen name="Recipe" component={Recipe} 
+          options={{
+            tabBarLabel: 'Recipes',
+            tabBarIcon: ({ focused, color, size }) => (
+              <FontAwesomeIcon icon={faBook} size={20} color={focused?'#f2570a':'white'} />
             ),
           }}/>
           <Tab.Screen name="Profile" component={Profile} 

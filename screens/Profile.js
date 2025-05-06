@@ -82,11 +82,11 @@ export default function Profile() {
 
       <View style={styles.actionCard}>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>🚪 Log Out</Text>
+          <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleDeleteAccount} style={styles.deleteButton}>
-          <Text style={styles.deleteText}>🗑️ Delete Account</Text>
+          <Text style={styles.deleteText}>Delete Account</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,10 +32,7 @@ export default function Profile() {
     try {
       await auth().signOut();
       await AsyncStorage.removeItem('userUID');
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'SignIn' }],
-      });
+      navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
     } catch (error) {
       console.error('Logout error:', error);
       Alert.alert('Error', 'Failed to log out.');
@@ -44,8 +41,8 @@ export default function Profile() {
 
   const handleDeleteAccount = async () => {
     Alert.alert(
-      "Confirm Delete",
-      "Are you sure you want to permanently delete your account?",
+      "Delete Account",
+      "This action is permanent. Are you sure?",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -56,14 +53,11 @@ export default function Profile() {
               const user = auth().currentUser;
               const uid = await AsyncStorage.getItem('userUID');
               if (uid) {
-                await firestore().collection('users').doc(uid).delete(); // Delete Firestore doc
+                await firestore().collection('users').doc(uid).delete();
                 await AsyncStorage.removeItem('userUID');
               }
-              await user.delete(); // Delete Firebase Auth user
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'SignIn' }],
-              });
+              await user.delete();
+              navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
             } catch (error) {
               console.error('Delete account error:', error);
               Alert.alert('Error', error.message || 'Failed to delete account.');
@@ -76,54 +70,110 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Profile</Text>
-      <Text style={styles.label}>Name:</Text>
-      <Text style={styles.info}>{userData.name}</Text>
-      <Text style={styles.label}>Email:</Text>
-      <Text style={styles.info}>{userData.email}</Text>
+      <Text style={styles.header}>👤 Your Profile</Text>
 
-      <TouchableOpacity onPress={handleLogout} style={styles.button}>
-        <Text style={styles.buttonText}>Log Out</Text>
-      </TouchableOpacity>
+      <View style={styles.profileCard}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{userData.name?.charAt(0)?.toUpperCase() || "?"}</Text>
+        </View>
+        <Text style={styles.name}>{userData.name || 'Your Name'}</Text>
+        <Text style={styles.email}>{userData.email || 'your@email.com'}</Text>
+      </View>
 
-      <TouchableOpacity onPress={handleDeleteAccount} style={[styles.button, { backgroundColor: '#e74c3c' }]}>
-        <Text style={styles.buttonText}>Delete Account</Text>
-      </TouchableOpacity>
+      <View style={styles.actionCard}>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Text style={styles.logoutText}>Log Out</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleDeleteAccount} style={styles.deleteButton}>
+          <Text style={styles.deleteText}>Delete Account</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 100,
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
+    paddingTop: 80,
+    paddingHorizontal: 24,
+    backgroundColor: '#F9FAFB',
     flex: 1,
   },
   header: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginBottom: 40,
+    fontSize: 28,
+    fontWeight: '700',
     textAlign: 'center',
+    marginBottom: 30,
+    color: '#333',
   },
-  label: {
-    fontSize: 16,
+  profileCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
+    marginBottom: 30,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  avatarText: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: '#555',
+  },
+  name: {
+    fontSize: 22,
     fontWeight: '600',
-    marginBottom: 5,
+    marginBottom: 4,
+    color: '#222',
   },
-  info: {
-    fontSize: 18,
-    marginBottom: 20,
+  email: {
+    fontSize: 16,
+    color: '#777',
   },
-  button: {
-    padding: 12,
+  actionCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  logoutButton: {
     backgroundColor: '#3498db',
-    borderRadius: 8,
-    marginVertical: 10,
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
     alignItems: 'center',
   },
-  buttonText: {
+  logoutText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    backgroundColor: '#ffe6e6',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e74c3c',
+  },
+  deleteText: {
+    color: '#e74c3c',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Platform,
+} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -11,10 +19,10 @@ const getDaysUntilExpiration = (expirationDate) => {
 };
 
 const getBoxColor = (daysLeft) => {
-  if (daysLeft >= 5) return '#bdf7a3';      // Green
-  if (daysLeft >= 2) return '#f0c986';      // Yellow
-  if (daysLeft < 0) return '#fc8d99';       // Red
-  return '#f28e5c';                         // Orange
+  if (daysLeft >= 5) return '#bdf7a3';
+  if (daysLeft >= 2) return '#f0c986';
+  if (daysLeft < 0) return '#fc8d99';
+  return '#f28e5c';
 };
 
 const getProgressBarWidth = (daysLeft) => {
@@ -53,11 +61,12 @@ export default function Pantry() {
   const deleteItem = async (id, name) => {
     Alert.alert(
       "Delete Item?",
-      `Are you sure you want to remove ${name} from the pantry?`,
+      `Are you sure you want to remove "${name}" from your pantry?`,
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
+          style: "destructive",
           onPress: async () => {
             try {
               const userUID = await AsyncStorage.getItem('userUID');
@@ -93,11 +102,11 @@ export default function Pantry() {
           <Text style={styles.itemName}>{item.name}</Text>
           <Text style={styles.expirationText}>
             {daysLeft >= 0
-              ? `${daysLeft} day(s) left`
-              : `Expired ${Math.abs(daysLeft)} day(s) ago`}
+              ? `⏳ ${daysLeft} day(s) left`
+              : `⚠️ Expired ${Math.abs(daysLeft)} day(s) ago`}
           </Text>
           <View style={styles.progressBarContainer}>
-            <View style={[styles.progressBar, { width: progressBarWidth, backgroundColor: '#4CAF50' }]} />
+            <View style={[styles.progressBar, { width: progressBarWidth }]} />
           </View>
         </View>
       </TouchableOpacity>
@@ -106,12 +115,14 @@ export default function Pantry() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Welcome to your pantry!</Text>
+      <Text style={styles.header}>Your Pantry</Text>
+      <Text style={styles.subtext}>Tap on an item to remove it</Text>
       <ExpirationLegend />
       <FlatList
         data={sortedItems}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <FoodItemBox item={item} />}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
     </View>
   );
@@ -119,83 +130,86 @@ export default function Pantry() {
 
 const ExpirationLegend = () => (
   <View style={styles.legendContainer}>
-    <Text style={styles.legendTitle}>Expiration Safety Scale:</Text>
-    <View style={styles.legendItem}>
-      <View style={[styles.legendColor, { backgroundColor: '#bdf7a3' }]} />
-      <Text>Safe (5+ days left)</Text>
-    </View>
-    <View style={styles.legendItem}>
-      <View style={[styles.legendColor, { backgroundColor: '#f0c986' }]} />
-      <Text>Caution (2-4 days left)</Text>
-    </View>
-    <View style={styles.legendItem}>
-      <View style={[styles.legendColor, { backgroundColor: '#f28e5c' }]} />
-      <Text>Expiring Soon (0-1 days left)</Text>
-    </View>
-    <View style={styles.legendItem}>
-      <View style={[styles.legendColor, { backgroundColor: '#fc8d99' }]} />
-      <Text>Expired (Past due)</Text>
-    </View>
-    <Text>Click on an item to remove it from your pantry!</Text>
+    <Text style={styles.legendTitle}>Expiration Key:</Text>
+    {[
+      { color: '#bdf7a3', label: 'Safe (5+ days)' },
+      { color: '#f0c986', label: 'Caution (2–4 days)' },
+      { color: '#f28e5c', label: 'Expiring Soon (0–1 days)' },
+      { color: '#fc8d99', label: 'Expired' },
+    ].map((item, i) => (
+      <View key={i} style={styles.legendItem}>
+        <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+        <Text style={styles.legendLabel}>{item.label}</Text>
+      </View>
+    ))}
   </View>
 );
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 100,
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
     flex: 1,
+    backgroundColor: "#fff",
+    paddingTop: 80,
+    paddingHorizontal: 20,
   },
   header: {
     fontSize: 26,
     fontWeight: 'bold',
-    marginBottom: 20,
+    color: '#f2570a',
     textAlign: 'center',
   },
+  subtext: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#666',
+    marginBottom: 15,
+  },
   itemBox: {
-    padding: 15,
-    marginVertical: 5,
-    marginHorizontal: 5,
-    borderRadius: 10,
-    elevation: 2,
+    padding: 18,
+    marginVertical: 6,
+    borderRadius: 12,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
   },
   itemName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: 'black',
+    fontWeight: "600",
+    color: "#222",
   },
   expirationText: {
     fontSize: 14,
+    color: "#555",
     marginTop: 5,
-    color: '#404040',
   },
   progressBarContainer: {
-    width: '100%',
+    width: "100%",
     height: 6,
-    backgroundColor: '#ddd',
-    borderRadius: 3,
-    marginTop: 5,
+    backgroundColor: "#e0e0e0",
+    borderRadius: 4,
+    marginTop: 8,
   },
   progressBar: {
     height: 6,
-    borderRadius: 3,
+    borderRadius: 4,
+    backgroundColor: "#4CAF50",
   },
   legendContainer: {
-    marginBottom: 15,
-    padding: 10,
-    backgroundColor: '#eee',
+    backgroundColor: "#f5f5f5",
     borderRadius: 10,
-    marginHorizontal: 5,
+    padding: 15,
+    marginBottom: 10,
   },
   legendTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "#333",
   },
   legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 5,
   },
   legendColor: {
@@ -203,5 +217,9 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 5,
     marginRight: 10,
+  },
+  legendLabel: {
+    fontSize: 14,
+    color: "#444",
   },
 });

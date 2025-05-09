@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 export default function Home() {
   const [userData, setUserData] = useState({ name: ''});
 
-  // pantry data
+  // get the total number of items in a users pantry and display the number of items close to expiring
   const[pantryStats, setPantryStats] = useState({total: 0, expiringSoon: 0});
   useFocusEffect(
     useCallback(() => {

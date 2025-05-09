@@ -46,6 +46,7 @@ export default function SignIn() {
     checkIfUserIsLoggedIn();
   }, []);
 
+  // sign in with normal email and password
   const signInWithEmail = async () => {
     try {
       const userCredential = await auth().signInWithEmailAndPassword(email, password);

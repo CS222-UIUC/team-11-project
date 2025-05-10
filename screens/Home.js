@@ -1,8 +1,30 @@
-import { useEffect, useState } from "react";
-import { Text, View, StyleSheet, Alert, Platform, TouchableOpacity } from "react-native";
-import firestore from '@react-native-firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import {
+  Text,
+  View,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Image,
+  Alert,
+} from 'react-native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
+
+// Google Sign-In Configuration
+GoogleSignin.configure({
+  webClientId: '421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com',
+  iosClientId: '421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com',
+  offlineAccess: false,
+  forceCodeForRefreshToken: true,
+  scopes: ['profile', 'email']
+});
 
 export default function Home() {
   const navigation = useNavigation();
@@ -13,58 +35,60 @@ export default function Home() {
     expired: 0,
   });
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const uid = await AsyncStorage.getItem('userUID');
-        if (!uid) return;
+  const fetchUserData = async () => {
+    try {
+      const uid = await AsyncStorage.getItem('userUID');
+      if (!uid) return;
 
-        const doc = await firestore().collection('users').doc(uid).get();
-        if (doc.exists) {
-          const data = doc.data();
-          setUserData({ name: data.name });
-        }
-
-        const pantrySnapshot = await firestore()
-          .collection('users')
-          .doc(uid)
-          .collection('pantry')
-          .get();
-
-        const items = pantrySnapshot.docs.map(doc => doc.data());
-
-        const today = new Date();
-        const soonThreshold = new Date();
-        soonThreshold.setDate(today.getDate() + 2);
-
-        let expiringSoon = 0;
-        let expired = 0;
-
-        items.forEach(item => {
-          const expDate = new Date(item.expiration);
-          if (expDate < today) {
-            expired += 1;
-          } else if (expDate <= soonThreshold) {
-            expiringSoon += 1;
-          }
-        });
-
-        setPantryStats({
-          total: items.length,
-          expiringSoon,
-          expired,
-        });
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+      const doc = await firestore().collection('users').doc(uid).get();
+      if (doc.exists) {
+        const data = doc.data();
+        setUserData({ name: data.name });
       }
-    };
 
-    fetchUserData();
-  }, []);
+      const pantrySnapshot = await firestore()
+        .collection('users')
+        .doc(uid)
+        .collection('pantry')
+        .get();
+
+      const items = pantrySnapshot.docs.map(doc => doc.data());
+
+      const today = new Date();
+      const soonThreshold = new Date();
+      soonThreshold.setDate(today.getDate() + 2);
+
+      let expiringSoon = 0;
+      let expired = 0;
+
+      items.forEach(item => {
+        const expDate = new Date(item.expiration);
+        if (expDate < today) {
+          expired += 1;
+        } else if (expDate <= soonThreshold) {
+          expiringSoon += 1;
+        }
+      });
+
+      setPantryStats({
+        total: items.length,
+        expiringSoon,
+        expired,
+      });
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserData();
+    }, [])
+  );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.welcome}>Welcome, {userData.name || "friend"}!</Text>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <Text style={styles.welcome}>Welcome, {userData.name || 'friend'}!</Text>
       <Text style={styles.subheading}>Here's a quick look at your pantry</Text>
 
       <View style={styles.card}>
@@ -84,22 +108,24 @@ export default function Home() {
         <Text style={styles.cardTitle}>Expired</Text>
         <Text style={styles.cardNumber}>{pantryStats.expired}</Text>
         {pantryStats.expired > 0 && (
-          <Text style={styles.expiredText}>Time to clean up! 🧹</Text>
+          <Text style={styles.expiredText}>Time to clean up!</Text>
         )}
       </View>
+
       <TouchableOpacity style={styles.pantryButton} onPress={() => navigation.navigate('Pantry')}>
         <Text style={styles.pantryButtonText}>Go to Pantry</Text>
       </TouchableOpacity>
-    </View>
+      <Text></Text>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollContainer: {
+    flexGrow: 1,
     paddingTop: 80,
     paddingHorizontal: 20,
     backgroundColor: '#FAFAFA',
-    flex: 1,
   },
   welcome: {
     fontSize: 28,
@@ -119,7 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 25,
     marginBottom: 20,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 5,
     elevation: 3,
@@ -146,16 +172,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   cardExpired: {
-    // backgroundColor: '#F0F0F0',
-    // borderColor: '#999',
-    // borderWidth: 1,
+    backgroundColor: '#F0F0F0',
+    borderColor: '#999',
+    borderWidth: 1,
   },
   expiredText: {
     marginTop: 8,
     color: '#666',
     fontSize: 14,
     fontStyle: 'italic',
-    fontWeight: 700,
+    fontWeight: '700',
   },
   pantryButton: {
     backgroundColor: '#f2570a',
@@ -168,11 +194,9 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 3,
   },
-  
   pantryButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
   },
-  
 });

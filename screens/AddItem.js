@@ -106,7 +106,7 @@ export default function AddItem() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FAFAFA",
     paddingTop: 80,
     paddingHorizontal: 24,
   },

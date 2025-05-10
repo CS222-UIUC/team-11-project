@@ -148,7 +148,7 @@ const ExpirationLegend = () => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FAFAFA",
     paddingTop: 80,
     paddingHorizontal: 20,
   },

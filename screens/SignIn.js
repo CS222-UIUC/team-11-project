@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -9,26 +9,32 @@ import {
   Keyboard,
   Image,
   Alert,
-} from "react-native";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import auth from "@react-native-firebase/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getApps } from "@react-native-firebase/app";
-import { useNavigation } from "@react-navigation/native";
+} from 'react-native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getApps } from '@react-native-firebase/app';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 // Google Sign-In Configuration
 GoogleSignin.configure({
-  webClientId: "421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com",
-  iosClientId: "421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com",
+  webClientId: '421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com',
+  iosClientId: '421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com',
   offlineAccess: false,
   forceCodeForRefreshToken: true,
 });
 
 export default function SignIn() {
   const navigation = useNavigation();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useFocusEffect(
+      React.useCallback(() => {
+        setErrorMessage('');
+      }, [])
+    );
 
   // Auto-redirect if already signed in
   useEffect(() => {
@@ -46,8 +52,23 @@ export default function SignIn() {
     checkIfUserIsLoggedIn();
   }, []);
 
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
   const signInWithEmail = async () => {
     try {
+      if (!email || !password) {
+        setErrorMessage('Please fill in all fields.');
+        return;
+      }
+
+      if (!validateEmail(email)) {
+        setErrorMessage('Please enter a valid email address.');
+        return;
+      }
+
       const userCredential = await auth().signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
       await AsyncStorage.setItem('userUID', user.uid);
@@ -55,21 +76,19 @@ export default function SignIn() {
       navigation.navigate('HomeFirst');
     } catch (error) {
       console.error('Email sign-in error:', error);
-      Alert.alert('Error', error.message);
+      if (error.code === 'auth/user-not-found') {
+        setErrorMessage('No account found with this email.');
+      } else if (error.code === 'auth/wrong-password') {
+        setErrorMessage('Incorrect password. Please try again.');
+      } else {
+        setErrorMessage(error.message || 'Failed to sign in.');
+      }
     }
   };
 
   const handleGoogleSignIn = async () => {
     try {
       await GoogleSignin.signOut(); // Ensure fresh sign-in
-      await GoogleSignin.configure({
-        webClientId: "421634745227-lv73muuh0et88ii6r0a007p0k86vbuki.apps.googleusercontent.com",
-        iosClientId: "421634745227-4tifpjj90q7jco1l4uac2u28q9anvu1g.apps.googleusercontent.com",
-        offlineAccess: false,
-        forceCodeForRefreshToken: true,
-        scopes: ["profile", "email"]
-      });
-
       const { idToken, accessToken } = await GoogleSignin.signIn();
       const credential = auth.GoogleAuthProvider.credential(idToken, accessToken);
       const authResult = await auth().signInWithCredential(credential);
@@ -83,7 +102,7 @@ export default function SignIn() {
       }
     } catch (error) {
       console.error('Google sign-in error:', error);
-      Alert.alert('Authentication Error', error.message || 'Failed to sign in with Google');
+      setErrorMessage(error.message || 'Failed to sign in with Google');
     }
   };
 
@@ -91,22 +110,27 @@ export default function SignIn() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <Image
-          source={require("../resources/SHELPW.png")}
+          source={require('../resources/SHELPW.png')}
           style={styles.logo}
-          resizeMode="contain"
+          resizeMode='contain'
         />
 
         <Text style={styles.title}>Welcome to the pantry of your dreams!</Text>
+
+        {errorMessage !== '' && <Text style={styles.error}>{errorMessage}</Text>}
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
           <TextInput
             value={email}
-            placeholder="Enter your email"
-            onChangeText={setEmail}
-            autoCapitalize="none"
+            placeholder='Enter your email'
+            onChangeText={(text) => {
+              setEmail(text);
+              if (errorMessage) setErrorMessage('');
+            }}
+            autoCapitalize='none'
             style={styles.input}
-            placeholderTextColor="#888"
+            placeholderTextColor='#888'
           />
         </View>
 
@@ -114,11 +138,14 @@ export default function SignIn() {
           <Text style={styles.label}>Password</Text>
           <TextInput
             value={password}
-            placeholder="Enter your password"
-            onChangeText={setPassword}
+            placeholder='Enter your password'
+            onChangeText={(text) => {
+              setPassword(text);
+              if (errorMessage) setErrorMessage('');
+            }}
             secureTextEntry
             style={styles.input}
-            placeholderTextColor="#888"
+            placeholderTextColor='#888'
           />
         </View>
 
@@ -143,9 +170,9 @@ export default function SignIn() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2570a",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#f2570a',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 20,
   },
   logo: {
@@ -155,57 +182,64 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    color: "white",
+    color: 'white',
     marginBottom: 30,
-    textAlign: "center",
-    fontWeight: "600",
+    textAlign: 'center',
+    fontWeight: '600',
   },
   inputContainer: {
-    width: "100%",
+    width: '100%',
     marginBottom: 15,
   },
   label: {
-    color: "white",
+    color: 'white',
     fontSize: 14,
     marginBottom: 5,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   input: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     padding: 12,
     borderRadius: 10,
     fontSize: 16,
   },
+  error: {
+    color: 'white',
+    marginBottom: 10,
+    textAlign: 'center',
+    backgroundColor: 'red',
+    padding: 10,
+  },
   signInButton: {
-    backgroundColor: "#fff",
-    width: "100%",
+    backgroundColor: '#fff',
+    width: '100%',
     padding: 14,
     borderRadius: 10,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 10,
     marginBottom: 15,
   },
   signInButtonText: {
-    color: "#f2570a",
+    color: '#f2570a',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   signUpText: {
-    color: "white",
+    color: 'white',
     fontSize: 14,
     marginBottom: 20,
   },
   googleButton: {
     marginTop: 10,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     padding: 12,
     borderRadius: 10,
-    width: "100%",
-    alignItems: "center",
+    width: '100%',
+    alignItems: 'center',
   },
   googleButtonText: {
-    color: "#4285F4",
-    fontWeight: "bold",
+    color: '#4285F4',
+    fontWeight: 'bold',
     fontSize: 16,
   },
 });

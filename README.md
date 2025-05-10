@@ -1,6 +1,41 @@
+# SHELP - Team 11 Project: React Native Mobile App
+
+## Team Members
+- Siya Choudhary
+- Claire Lin 
+- Shriya Mandalapu 
+- Aliya Ahmad 
+
+# Introduction
+
+Have you ever found yourself throwing out tons of food from your pantry? Shelp is here to help! Our app helps reduce food waste by managing pantry items and sending timely alerts before they expire.
+
+What can Shelp help with: 
+- Add items to your virtual pantry
+- Organize pantry items by expiration date, from closest to furthest
+- Receive alerts when your pantry items are expiring
+- Remove and clean up your pantry
+- AI-generated recipe suggestions based on items close to expiring
+
+# Technical Architecture
+
+Database Storage:
+
+- We use Firebase for simple, scalable cloud storage and integrated user authentication.
+- Each user is represented as a unique token, storing basic information (name, password, email) and pantry data.
+
+Frontend:
+- Built with React Native for cross-platform support, focusing on iOS and Android usage.
+- Uses JavaScript and the Bootstrap library for efficient, responsive design.
+
+Backend:
+- Leverages Firebase for real-time data storage.
+
+![alt text](image.png)
+
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-# Getting Started
+# Getting Started With Development
 
 > **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
@@ -86,13 +121,4 @@ You've successfully run and modified your React Native App. :partying_face:
 
 If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
 
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
 # team-11-project

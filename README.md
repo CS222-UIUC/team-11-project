@@ -1,10 +1,10 @@
 # SHELP - Team 11 Project: React Native Mobile App
 
 ## Team Members
-- Siya Choudhary
-- Claire Lin 
-- Shriya Mandalapu 
-- Aliya Ahmad 
+- Siya Choudhary: worked on database set-up & management + UI
+- Claire Lin : worked on authentication & backend + UI
+- Shriya Mandalapu: worked on recipe generator integration
+- Aliya Ahmad: worked on authentication & backend + UI
 
 # Introduction
 
